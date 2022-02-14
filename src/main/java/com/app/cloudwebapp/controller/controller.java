@@ -28,7 +28,7 @@ public class controller {
 	public ResponseEntity<String> getStatus() {
 	    return ResponseEntity.ok()
 	            .header("Status okay", "200")
-	            .body("Application is working fine!!");
+	            .body("Application is working fine!!")
 	    }
 
 }
