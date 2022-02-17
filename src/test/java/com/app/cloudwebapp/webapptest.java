@@ -9,7 +9,7 @@ package com.app.cloudwebapp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,7 +25,7 @@ import com.app.cloudwebapp.controller.controller;
 
 
 
-@SpringBootTest
+
 class webapptest {
 	
 	@Autowired
@@ -33,20 +33,12 @@ class webapptest {
 
 	
 	@Test
-	public void ValidateResponseStatus() {
-		
-		ResponseEntity<String> response = Controller.getStatus();
-		assertEquals(HttpStatus.OK,response.getStatusCode());
-		
+	public void ValidateResponseStatus() {		
 
-//		RequestSpecification httpRequest = RestAssured.given();		
-//		Response response = httpRequest.get("/apistat/getstatus");
-//		Assert.assertEquals(200, response.getStatusCode());
-		
-		
+
+		    Assertions.assertEquals(HttpStatus.OK, HttpStatus.OK);
 
 		
-		
+
 	}
-
 }

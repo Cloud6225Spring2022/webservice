@@ -11,6 +11,9 @@ jdk8 and plus
 maven
 springboot
 postman
+mysql database
+base64 auth
+Bcrypt
 
 Build and Deploy instructions for the web application
 
