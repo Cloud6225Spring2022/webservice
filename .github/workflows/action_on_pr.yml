@@ -27,4 +27,11 @@ jobs:
       - name: Run a multi-line script
         run: |
           echo Build Java Web application,
+          sudo apt-get update -y,
+          pwd,
           mvn clean install
+          
+      - name: where is the jar file created
+        run: |
+          cd target,
+          ls -a
