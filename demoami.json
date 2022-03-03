@@ -1,13 +1,13 @@
 {
     "variables": {
-        "AWS_ACCESS_KEY": "AKIA56ZN4HT2ZOFNDBWZ",
-        "AWS_SECRET_KEY": "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",
-        "AWS_REGION": "{{env `AWS_REGION`}}",
-        "SUBNET_ID": "{{env `SUBNET_ID`}}",
-        "SOURCE_AMI": "{{env `SOURCE_AMI`}}",
-        "AWS_INSTANCE_TYPE": "{{env `AWS_INSTANCE_TYPE`}}",
-        "SSH_USERNAME": "{{env `SSH_USERNAME`}}",
-		"DEMO_ACCOUNT_ID": "{{env `DEMO_ACCOUNT_ID`}}"
+        "AWS_ACCESS_KEY": "",
+        "AWS_SECRET_KEY": "",
+        "AWS_REGION": "",
+        "SUBNET_ID": "",
+        "SOURCE_AMI": "",
+        "AWS_INSTANCE_TYPE": "",
+        "SSH_USERNAME": "",
+		"DEMO_ACCOUNT_ID": ""
     },
     "builders": [
         {
