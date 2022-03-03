@@ -12,16 +12,16 @@
     "builders": [
         {
             "type": "amazon-ebs",
-            "access_key": "{{user `AWS_ACCESS_KEY`}}",
-            "secret_key": "{{user `AWS_SECRET_KEY`}}",
-            "region": "{{user `AWS_REGION`}}",
-            "instance_type": "{{user `AWS_INSTANCE_TYPE`}}",
-            "subnet_id": "{{user `SUBNET_ID`}}",
-            "source_ami": "{{user `SOURCE_AMI`}}",
-            "ssh_username": "{{user `SSH_USERNAME`}}",
+            "access_key": "{{env `AWS_ACCESS_KEY`}}",
+            "secret_key": "{{env `AWS_SECRET_KEY`}}",
+            "region": "{{env `AWS_REGION`}}",
+            "instance_type": "{{env `AWS_INSTANCE_TYPE`}}",
+            "subnet_id": "{{env `SUBNET_ID`}}",
+            "source_ami": "{{env `SOURCE_AMI`}}",
+            "ssh_username": "{{env `SSH_USERNAME`}}",
             "ami_name": "csye6225_{{timestamp}}",
 			"security_group_id": "sg-08ddae1dbe3c7c686",
-			"ami_users": "{{user `DEMO_ACCOUNT_ID`}}",
+			"ami_users": "{{env `DEMO_ACCOUNT_ID`}}",
 			"associate_public_ip_address": true,
             "tags":{
                 "Name": "Vaishnavi-{{timestamp}}"
