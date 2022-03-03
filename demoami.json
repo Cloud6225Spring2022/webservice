@@ -1,0 +1,87 @@
+{
+    "variables": {
+        "AWS_ACCESS_KEY": "AKIA56ZN4HT2ZOFNDBWZ",
+        "AWS_SECRET_KEY": "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",
+        "AWS_REGION": "{{env `AWS_REGION`}}",
+        "SUBNET_ID": "{{env `SUBNET_ID`}}",
+        "SOURCE_AMI": "{{env `SOURCE_AMI`}}",
+        "AWS_INSTANCE_TYPE": "{{env `AWS_INSTANCE_TYPE`}}",
+        "SSH_USERNAME": "{{env `SSH_USERNAME`}}",
+		"DEMO_ACCOUNT_ID": "{{env `DEMO_ACCOUNT_ID`}}"
+    },
+    "builders": [
+        {
+            "type": "amazon-ebs",
+            "access_key": "{{user `AWS_ACCESS_KEY`}}",
+            "secret_key": "{{user `AWS_SECRET_KEY`}}",
+            "region": "{{user `AWS_REGION`}}",
+            "instance_type": "{{user `AWS_INSTANCE_TYPE`}}",
+            "subnet_id": "{{user `SUBNET_ID`}}",
+            "source_ami": "{{user `SOURCE_AMI`}}",
+            "ssh_username": "{{user `SSH_USERNAME`}}",
+            "ami_name": "csye6225_{{timestamp}}",
+			"security_group_id": "sg-08ddae1dbe3c7c686",
+			"ami_users": "{{user `DEMO_ACCOUNT_ID`}}",
+			"associate_public_ip_address": true,
+            "tags":{
+                "Name": "Vaishnavi-{{timestamp}}"
+			},            
+            "ami_description": "AWS Linux 2 AMI for web app"
+		}
+    ],	
+    "provisioners": [
+        {
+					
+            "type": "shell",
+            "inline": [
+				"sudo yum -y update",
+                "sudo yum install -y java-1.8.0-openjdk.x86_64",
+				"sudo yum install -y maven",
+                "java -version",
+				"cd /tmp",
+				"sudo wget https://dlcdn.apache.org/maven/maven-3/3.8.4/binaries/apache-maven-3.8.4-bin.tar.gz",
+				"sudo tar xf /tmp/apache-maven-*.tar.gz -C /opt",
+				"sudo ln -s /opt/apache-maven-3.8.4 /opt/maven",
+				"cd",
+                "export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk/",
+				"PATH=$JAVA_HOME/bin:$PATH",
+                "export M2_HOME=/opt/maven",
+                "export MAVEN_HOME=/opt/maven",
+                "export PATH=${M2_HOME}/bin:${PATH}",
+                "mvn -version",
+				"sudo rpm --import https://repo.mysql.com/RPM-GPG-KEY-mysql-2022",
+				"sudo rpm -Uvh https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm",
+				"sleep 5",
+				"sudo wget -O /etc/pki/rpm-gpg/RPM-GPG-KEY-mysql https://repo.mysql.com/RPM-GPG-KEY-mysql-2022",
+				"sleep 5",
+				"sudo wget https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm",
+				"sudo yum install mysql-community-server -y",
+				"sudo systemctl start mysqld.service",
+				"pwd=`sudo grep 'temporary password' /var/log/mysqld.log | rev | cut -d':' -f 1 | rev | xargs`",
+				"sudo mysql -uroot -p$pwd --connect-expired-password -e \"Alter user 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'Pass@123'\"",
+				"sudo mysql -uroot -pPass@123 -e \"CREATE DATABASE IF NOT EXISTS user\""
+            ]		
+        },
+		{
+			"destination":"/home/ec2-user/",
+			"source":"./target/apistatus-0.0.1-SNAPSHOT.jar",
+			"type":"file"
+		},
+		{
+			"destination":"/tmp/",
+			"source":"application.service",
+			"type":"file"
+		},
+		{
+			"type": "shell",
+            "inline": [
+				"echo working",
+				"sudo cp /tmp/application.service /etc/systemd/system",
+				"echo copied",
+				"sudo systemctl start application.service",
+				"sudo systemctl enable application.service"
+			]
+			
+		}
+    ]
+}

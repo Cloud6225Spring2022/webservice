@@ -1,11 +1,11 @@
 # webservice
 
-Assignment 01
-Name: Vaishnavi Khismatrao
+Assignment 04
+Name: Vaishnavi Kiran Khismatrao
 NUID: 001523415
 
 prerequisites for application to build and deploy locally
-Programming language: JAVA
+Programming language: JAVA and Packer
 
 jdk8 and plus
 maven
