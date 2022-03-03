@@ -1,0 +1,9 @@
+[Unit]
+Description=webserver Daemon
+
+[Service]
+ExecStart=/usr/bin/java -jar /home/ec2-user/apistatus-0.0.1-SNAPSHOT.jar
+User=ec2-user
+
+[Install]
+WantedBy=multi-user.target
