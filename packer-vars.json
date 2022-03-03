@@ -1,10 +1,10 @@
 {
-    "aws_access_key": "AKIA56ZN4HT2ZOFNDBWZ",
-    "aws_secret_key": "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",
-    "ssh_username": "ec2-user",
-    "aws_region": "us-east-1",
-    "source_ami": "ami-033b95fb8079dc481",
-    "aws_instance_type": "t2.micro",
-    "subnet_id": "subnet-0f7e9580bd1af76a0",
-	"demo_account_id" : "618204604197"
+    "AWS_ACCESS_KEY": "{{env `AWS_ACCESS_KEY`}}",
+    "AWS_SECRET_KEY": "{{env `AWS_SECRET_KEY`}}",
+    "SSH_USERNAME": "{{env `SSH_USERNAME`}}",
+    "AWS_REGION": "{{env `AWS_REGION`}}",
+    "SOURCE_AMI": "{{env `SOURCE_AMI`}}",
+    "AWS_INSTANCE_TYPE": "{{env `AWS_INSTANCE_TYPE`}}",
+    "SUBNET_ID": "{{env `SUBNET_ID`}}",
+	"DEMO_ACCOUNT_ID" : "{{env `DEMO_ACCOUNT_ID`}}"
 }

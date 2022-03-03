@@ -5,7 +5,7 @@ Name: Vaishnavi Kiran Khismatrao
 NUID: 001523415
 
 prerequisites for application to build and deploy locally
-Programming language: JAVA and Packer
+Programming language: JAVA and Packer and Cloud Formation
 
 jdk8 and plus
 maven
