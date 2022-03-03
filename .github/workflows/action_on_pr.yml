@@ -1,10 +1,11 @@
 # This is a basic workflow to help you get started with Actions
 
-name: JAVA RUN and TEST
+name: CI
 
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
+  
   pull_request:
     branches: [ main ]
 
@@ -26,10 +27,27 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
-          echo Build Java Web application,
+          echo Add other actions to build,
           mvn clean install
+          mkdir staging && cp target/*.jar staging
+          cd staging
+          ls -R
           
-      - name: where is the jar file created
+      - name: Packer GitHub Actions
+        uses: hashicorp/packer-github-actions@v0.2.0
+        with:
+            command: validate
+            arguments: -syntax-only
+            target: demoami.json
+
+          
+ 
+      - name: set path
         run: |
-          cd target,
-          ls -a
+          ls -R
+          
+      - name: Packer build
+        uses: riznob/packer-build-action@v1.5
+        with:
+          templateFile: 'demoami.json'
+          workingDir: '.'
