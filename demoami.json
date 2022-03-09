@@ -9,7 +9,7 @@
         "SSH_USERNAME": "",
 		"DEMO_ACCOUNT_ID": ""
     },
-    "builde": [
+    "builders": [
         {
             "type": "amazon-ebs",
             "access_key": "{{user `AWS_ACCESS_KEY`}}",
