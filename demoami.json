@@ -53,7 +53,7 @@
         },
 		{
 			"destination":"/home/ec2-user/",
-			"source":"./target/apistatus-0.0.1-SNAPSHOT.jar",
+			"source":"./staging/apistatus-0.0.1-SNAPSHOT.jar",
 			"type":"file"
 		},
 		{
