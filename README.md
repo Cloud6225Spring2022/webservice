@@ -15,6 +15,13 @@ mysql database
 base64 auth
 Bcrypt
 
+AWS Services Used
+Cloudformation
+RDS
+S3
+EC2
+VPC
+
 Build and Deploy instructions for the web application
 
 
