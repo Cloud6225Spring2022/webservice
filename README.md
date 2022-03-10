@@ -17,8 +17,8 @@ Bcrypt
 
 AWS Services 
 
-RDS
 Cloudformation
+RDS
 VPC
 S3
 
