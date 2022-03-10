@@ -1,0 +1,45 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CD
+
+# Controls when the workflow will run
+on:
+# Triggers the workflow on push or pull request events but only for the main branch
+
+  push:
+    branches: [ main ]
+
+# Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+# This workflow contains a single job called "build"
+  build:
+# The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+# Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+# Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+
+    - name: set path
+      run: |
+        ls -R
+
+    - name: Packer build
+      uses: riznob/packer-build-action@v1.5
+      with:
+        templateFile: 'demoami.json'
+        workingDir: '.'
+        varFile: 'packer-vars.json'
+      env:
+        AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+        AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+        SUBNET_ID: ${{ secrets.SUBNET_ID }}
+        DEMO_ACCOUNT_ID: ${{ secrets.DEMO_ACCOUNT_ID }}
+        SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+        SOURCE_AMI: ${{ secrets.SOURCE_AMI }}
+        AWS_INSTANCE_TYPE: ${{secrets.AWS_INSTANCE_TYPE}}
