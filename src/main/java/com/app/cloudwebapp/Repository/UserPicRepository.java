@@ -1,5 +1,7 @@
 package com.app.cloudwebapp.Repository;
 
+
+
 import com.app.cloudwebapp.Model.ProfilePic;
 import com.app.cloudwebapp.Model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,7 +11,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface UserPicRepository extends JpaRepository<ProfilePic, UUID> {
-	
-	Optional<ProfilePic> findByUser(User user);
+
+    //@Transactional
+
+    Optional<ProfilePic> findByUser(User user);
 
 }
+

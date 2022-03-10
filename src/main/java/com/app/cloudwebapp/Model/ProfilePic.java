@@ -1,19 +1,19 @@
 package com.app.cloudwebapp.Model;
 
+
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.UUID;
 
-
 @JsonIgnoreProperties(value = {"upload_date"},
-allowGetters = true)
+        allowGetters = true)
 @Entity
 @Table
 public class ProfilePic {
-	
-	@Id
+    @Id
     @GeneratedValue
     @Column(length=16)
     private UUID id;
@@ -80,5 +80,4 @@ public class ProfilePic {
     public ProfilePic(){
 
     }
-
 }
