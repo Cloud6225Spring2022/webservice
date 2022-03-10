@@ -11,7 +11,6 @@ jdk8 and plus
 maven
 springboot
 postman
-mysql database
 base64 auth
 Bcrypt
 
