@@ -2,7 +2,8 @@
 Description=webserver Daemon
 
 [Service]
-ExecStart=/usr/bin/java -jar /home/ec2-user/apistatus-0.0.1-SNAPSHOT.jar
+EnvironmentFile=/home/ec2-user/environment.env
+ExecStart=/home/ec2-user/webapp.sh
 User=ec2-user
 
 [Install]
