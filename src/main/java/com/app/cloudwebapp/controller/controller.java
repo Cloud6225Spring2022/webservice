@@ -208,8 +208,8 @@ public class controller {
             String message = "";
             try {
 
-                Optional<ProfilePic> picProfilePic = userPicRepository.findByUser(user.get());
-                if (!picProfilePic.isPresent()) {
+              //  Optional<ProfilePic> picProfilePic = userPicRepository.findByUser(user.get());
+               // if (picProfilePic.isPresent()) {
                    // System.out.println(picProfilePic.get().getId());
 
                     if(file.getContentType().equals("image/jpg") || file.getContentType().equals("image/jpeg")
@@ -224,7 +224,7 @@ public class controller {
                         message = "Uploaded the file successfully: " + file.getOriginalFilename();
                         return ResponseEntity.status(HttpStatus.OK).body(message);
                     }
-                }
+             //   }
                 return ResponseEntity.status(HttpStatus.OK).body(message);
             } catch (Exception e) {
                 message = "Could not upload the file: " + file.getOriginalFilename() + "!";
@@ -252,7 +252,7 @@ public class controller {
                 Optional<ProfilePic> picProfilePic = userPicRepository.findByUser(user.get());
                 if (picProfilePic.isPresent()) {
 
-                    ResponseEntity<Object> responseEntity = userPicService.deletePicture(user.get().getUsername());
+                    ResponseEntity<Object> responseEntity = userPicService.deletePicture(user.get());
                    // userPicRepository.deleteById(picProfilePic.get().getId());
                     return ResponseEntity.status(HttpStatus.NO_CONTENT).body("");
                 }
@@ -268,7 +268,6 @@ public class controller {
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("");
     }
-
 
 }
 

@@ -1,5 +1,7 @@
 package com.app.cloudwebapp.Model;
 
+
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.*;
@@ -28,26 +30,35 @@ import java.util.UUID;
 @Table
     public class User {
 
-
+//    @GenericGenerator(
+//            name = "UUID",
+//            strategy = "org.hibernate.id.UUIDGenerator"
+//    )
+//    @Column(name = "id", updatable = false, nullable = false)
     @Id
     @GeneratedValue
+    @Column(length=16)
     private UUID id;
 
 
- 
+   // @NotNull
+    //@Column
     private String first_name;
 
- 
+   // @NotNull
+   // @Column
     private String last_name;
 
- 
+    //@NotNull
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-
+    //@Column
     private String password;
 
 
 
+
     @Column(nullable = false, unique = true)
+    @Email
     private String username;
 
 
@@ -66,6 +77,7 @@ import java.util.UUID;
     private Timestamp account_created;
 
 
+    @Column
     private Timestamp account_updated;
 
 
@@ -139,7 +151,6 @@ import java.util.UUID;
                     "id=" + id +
                     ", first_name='" + first_name + '\'' +
                     ", last_name='" + last_name + '\'' +
-                    ", password='" + password + '\'' +
                     ", username='" + username + '\'' +
                     ", account_created=" + account_created +
                     ", account_updated=" + account_updated +

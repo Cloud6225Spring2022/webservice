@@ -2,7 +2,10 @@ package com.app.cloudwebapp.Service;
 
 
 
+
+
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.app.cloudwebapp.Model.ProfilePic;
 import com.app.cloudwebapp.Model.User;
@@ -108,7 +111,12 @@ public class UserPicService {
                 UUID.randomUUID(),user,filename,file_url, new Timestamp(System.currentTimeMillis()));
 
         if(checkIfPictureExists(user.getId())){
-            deletePicture(user.getUsername());
+
+
+            ProfilePic p2 = getPictureByUserId(user.getId());
+            s3Client.deleteObject(new DeleteObjectRequest(s3BucketName, p2.getUser().getId().toString()+"/"+p2.getFile_name()));
+            deletePicture(user);
+
         }
         s3Client.putObject(new PutObjectRequest(s3BucketName,  foldername+"/"+filename,fileObject));
         fileObject.delete();
@@ -132,21 +140,19 @@ public class UserPicService {
         return null;
     }
 
-    public ResponseEntity<Object> deletePicture(String username){
+    public ResponseEntity<Object> deletePicture(User user){
 
-        User u = (User) userService.loadUserByUsername(username);
-        UUID user_id = u.getId();
+       // User u = (User) userService.loadUserByUsername(username);
+        UUID user_id = user.getId();
         ProfilePic p = getPictureByUserId(user_id);
 
         if(p == null){
             return new ResponseEntity<>("User dont have picture", HttpStatus.NOT_FOUND);
         }
 
-        s3Client.deleteObject(s3BucketName, p.getFile_name());
-        long start_time_delete_picture_info = System.currentTimeMillis();
+        s3Client.deleteObject(new DeleteObjectRequest(s3BucketName, p.getUser().getId().toString()+"/"+p.getFile_name()));
+
         pictureRepository.deleteById(p.getId());
-        long end_time_delete_picture_info = System.currentTimeMillis();
-        long elapsedTime2 = end_time_delete_picture_info - start_time_delete_picture_info;
 
         String response_body_message = p.getFile_name()+" deleted successfully";
         return new ResponseEntity<>(response_body_message, HttpStatus.NO_CONTENT);
@@ -154,4 +160,3 @@ public class UserPicService {
 
 
 }
-
