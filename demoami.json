@@ -62,13 +62,16 @@
 			"type":"file"
 		},
 		{
+        "destination":"/home/ec2-user/",
+        "source":"webapp.sh",
+        "type":"file"
+      },
+		{
 			"type": "shell",
             "inline": [
 				"echo working",
 				"sudo cp /tmp/application.service /etc/systemd/system",
-				"echo copied",
-				"sudo systemctl start application.service",
-				"sudo systemctl enable application.service"
+				"echo copied"
 			]
 			
 		}
