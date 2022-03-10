@@ -48,18 +48,7 @@
                 "export M2_HOME=/opt/maven",
                 "export MAVEN_HOME=/opt/maven",
                 "export PATH=${M2_HOME}/bin:${PATH}",
-                "mvn -version",
-				"sudo rpm --import https://repo.mysql.com/RPM-GPG-KEY-mysql-2022",
-				"sudo rpm -Uvh https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm",
-				"sleep 5",
-				"sudo wget -O /etc/pki/rpm-gpg/RPM-GPG-KEY-mysql https://repo.mysql.com/RPM-GPG-KEY-mysql-2022",
-				"sleep 5",
-				"sudo wget https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm",
-				"sudo yum install mysql-community-server -y",
-				"sudo systemctl start mysqld.service",
-				"pwd=`sudo grep 'temporary password' /var/log/mysqld.log | rev | cut -d':' -f 1 | rev | xargs`",
-				"sudo mysql -uroot -p$pwd --connect-expired-password -e \"Alter user 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'Pass@123'\"",
-				"sudo mysql -uroot -pPass@123 -e \"CREATE DATABASE IF NOT EXISTS user\""
+                "mvn -version"
             ]		
         },
 		{

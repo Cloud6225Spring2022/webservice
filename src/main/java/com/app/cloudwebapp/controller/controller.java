@@ -2,13 +2,18 @@ package com.app.cloudwebapp.controller;
 
 
 
-
-import java.sql.Timestamp;
-import java.util.List;
-import java.util.Optional;
-
-import javax.validation.Valid;
-
+import com.amazonaws.util.IOUtils;
+import com.app.cloudwebapp.Model.ProfilePic;
+import com.app.cloudwebapp.Model.User;
+import com.app.cloudwebapp.Repository.UserPicRepository;
+import com.app.cloudwebapp.Repository.UserRepository;
+import com.app.cloudwebapp.Config.FileUploadProperties;
+import com.app.cloudwebapp.Service.FileUploadService;
+import com.app.cloudwebapp.Service.UserPicService;
+import com.app.cloudwebapp.Validators.UserValidator;
+import org.apache.tomcat.util.json.ParseException;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,19 +22,17 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.app.cloudwebapp.Model.User;
-
-import com.app.cloudwebapp.Repository.UserRepository;
-import com.app.cloudwebapp.Validators.UserValidator;
+import javax.validation.Valid;
+import java.io.InputStream;
+import java.sql.Timestamp;
+import java.util.List;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 
@@ -45,6 +48,15 @@ public class controller {
 
     @Autowired
     UserRepository userRepository;
+    
+    @Autowired
+    UserPicRepository userPicRepository;
+    
+    @Autowired
+    FileUploadService fileUploadService;
+
+    @Autowired
+    UserPicService userPicService;
 
     @Autowired
     private UserValidator userValidator;
@@ -150,6 +162,111 @@ public class controller {
 
 
            
+    }
+    
+    
+    @GetMapping("/v1/user/self/pic")
+    public ResponseEntity<String> getUserPic(Authentication authentication) throws JSONException {
+
+        if (authentication == null || authentication.getName() == null && authentication.getName().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
+
+        Optional<User> user = userRepository.findByUsername(authentication.getName());
+
+        if (user != null) {
+
+            Optional<ProfilePic> profilePic = userPicRepository.findByUser(user.get());
+            if(!profilePic.isPresent())
+            {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+            String jsonString = new JSONObject().put("file_name",profilePic.get().getFile_name())
+                    .put("id",profilePic.get().getId() )
+                    .put("url", profilePic.get().getUrl())
+                    .put("upload_date",profilePic.get().getUpload_date())
+                    .put("user_id",profilePic.get().getUser().getId()).toString();
+            return ResponseEntity.status(HttpStatus.OK).body(jsonString);
+        }
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+    }
+
+
+    @PostMapping("/v1/user/self/pic")
+    public ResponseEntity<String> uploadUserPic(@RequestParam("file") MultipartFile file, Authentication authentication) throws ParseException {
+        if (authentication == null || authentication.getName() == null && authentication.getName().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Please provide proper authentication");
+        }
+
+
+        Optional<User> user = userRepository.findByUsername(authentication.getName());
+
+        if (user != null) {
+
+            String message = "";
+            try {
+
+                Optional<ProfilePic> picProfilePic = userPicRepository.findByUser(user.get());
+                if (!picProfilePic.isPresent()) {
+                   // System.out.println(picProfilePic.get().getId());
+
+                    if(file.getContentType().equals("image/jpg") || file.getContentType().equals("image/jpeg")
+                            || file.getContentType().equals("image/png")) {
+
+
+
+                        String response = userPicService.uploadPicture(file, user.get().getUsername(),user.get());
+
+
+                        //fileUploadService.save(file,user.get());
+                        message = "Uploaded the file successfully: " + file.getOriginalFilename();
+                        return ResponseEntity.status(HttpStatus.OK).body(message);
+                    }
+                }
+                return ResponseEntity.status(HttpStatus.OK).body(message);
+            } catch (Exception e) {
+                message = "Could not upload the file: " + file.getOriginalFilename() + "!";
+                return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(message);
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+        }
+
+    }
+
+    @DeleteMapping("/v1/user/self/pic")
+    public ResponseEntity<String> deleteUserPic(Authentication authentication) throws ParseException {
+        if (authentication == null || authentication.getName() == null && authentication.getName().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Please provide proper authentication");
+        }
+
+        Optional<User> user = userRepository.findByUsername(authentication.getName());
+
+        if (user != null) {
+
+            String message = "";
+            try {
+
+                Optional<ProfilePic> picProfilePic = userPicRepository.findByUser(user.get());
+                if (picProfilePic.isPresent()) {
+
+                    ResponseEntity<Object> responseEntity = userPicService.deletePicture(user.get().getUsername());
+                   // userPicRepository.deleteById(picProfilePic.get().getId());
+                    return ResponseEntity.status(HttpStatus.NO_CONTENT).body("");
+                }
+
+            }
+            catch (Exception e) {
+
+                return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
+            }
+        }
+
+
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("");
     }
 
 
