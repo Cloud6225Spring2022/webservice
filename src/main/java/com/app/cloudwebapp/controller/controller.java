@@ -2,6 +2,8 @@ package com.app.cloudwebapp.controller;
 
 
 
+
+
 import com.amazonaws.util.IOUtils;
 import com.app.cloudwebapp.Model.ProfilePic;
 import com.app.cloudwebapp.Model.User;
@@ -27,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
+import java.io.File;
 import java.io.InputStream;
 import java.sql.Timestamp;
 import java.util.List;
@@ -35,85 +38,90 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-
-
-
 @RestController
 @RequestMapping("/")
 @CrossOrigin("*")
 public class controller {
-	
+
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
     UserRepository userRepository;
-    
+
     @Autowired
     UserPicRepository userPicRepository;
-    
+
+    @Autowired
+    private UserValidator userValidator;
+
     @Autowired
     FileUploadService fileUploadService;
 
     @Autowired
     UserPicService userPicService;
 
-    @Autowired
-    private UserValidator userValidator;
-
     @InitBinder
     private void initBinder(WebDataBinder binder) {
         binder.setValidator(userValidator);
     }
 
-	
-	@GetMapping("/healthz")
-	public ResponseEntity<String> getStatus() {
-	    return ResponseEntity.ok()
-	            .header("Status okay", "200")
-	            .body("Application is working fine!!");
-	    }
-	
-	@GetMapping("/v1/user/self")
-    public ResponseEntity<User> getUserById( Authentication authentication)
-    {
-		if (authentication == null || authentication.getName() == null && authentication.getName().isEmpty()) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-			}
+
+    @GetMapping("/healthz")
+    public ResponseEntity<String> getUsers() {
+        return ResponseEntity.status(HttpStatus.OK).body("");
+
+    }
+
+
+    @GetMapping("/v1/user/self")
+    public ResponseEntity<User> getUserById(Authentication authentication) {
+        if (authentication == null || authentication.getName() == null && authentication.getName().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
 
         Optional<User> user = userRepository.findByUsername(authentication.getName());
         return ResponseEntity.status(HttpStatus.OK).body(user.get());
     }
 
     @PostMapping("/v1/user")
-    public ResponseEntity<User> createUser(@Valid @RequestBody User user, BindingResult errors )
-    {
+    public ResponseEntity<User> createUser(@Valid @RequestBody User user, BindingResult errors) throws ParseException {
         List<User> users = userRepository.findAll();
-        
+        //System.out.println("New user: " + newUser.toString());
         for (User user2 : users) {
-           
+            //System.out.println("Registered user: " + newUser.toString());
             if (user2.getUsername().equals(user.getUsername())) {
-                
+                // System.out.println("User Already exists!");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
             }
         }
-        if(errors.hasErrors())
-        {
-
+        if (errors.hasErrors()) {
 
 
             //String error  = errors;
             System.out.println("error" + errors.getFieldError().getCode());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-        else {
+        } else {
+
+
+            String regex = "^(.+)@(.+)$";
+
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(user.getUsername());
+            if (!matcher.matches()) {
+                return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(null);
+
+
+            }
+
 
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             user.setAccount_created(new Timestamp(System.currentTimeMillis()));
             user.setAccount_updated(new Timestamp(System.currentTimeMillis()));
             user.setActive(true);
+
             User createdUser = userRepository.save(user);
-     
+
 
             return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
 
@@ -121,50 +129,45 @@ public class controller {
 
     }
 
-
+    // @PreAuthorize(value = "isAuthenticated()")
     @PutMapping("/v1/user/self")
-    public ResponseEntity<User> UpdateUser(Authentication authentication, @Valid @RequestBody User updatedUser)
-    {
-    	if (authentication == null || authentication.getName() == null && authentication.getName().isEmpty()) {
-    		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-    		}
+    public ResponseEntity<User> UpdateUser(Authentication authentication, @Valid @RequestBody User updatedUser) {
+
+
+        if (authentication == null || authentication.getName() == null && authentication.getName().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
 
         if (updatedUser.getUsername() != null && !updatedUser.getUsername().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
 
-        if (updatedUser.getAccount_created() != null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
+        Optional<User> user = userRepository.findByUsername(authentication.getName());
 
-        if (updatedUser.getAccount_updated() != null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-
-        User user2 = null;
-        
+        if (user != null) {
 
 
+            User user2 = null;
 
-            Optional<User> user = userRepository.findByUsername(authentication.getName());
             userRepository.flush();
-     
-
-        String password = updatedUser.getPassword();
-        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-        updatedUser.setPassword(bCryptPasswordEncoder.encode(password));
-        updatedUser.setAccount_updated(new Timestamp(System.currentTimeMillis()));
 
 
-        userRepository.updateUser(authentication.getName(), updatedUser.getFirst_name(),
-                updatedUser.getLast_name(), updatedUser.getPassword(), (Timestamp) updatedUser.getAccount_updated());
-        return(getUserById(authentication));
+            String password = updatedUser.getPassword();
+            BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+            updatedUser.setPassword(bCryptPasswordEncoder.encode(password));
+            updatedUser.setAccount_updated(new Timestamp(System.currentTimeMillis()));
 
 
-           
+            userRepository.updateUser(authentication.getName(), updatedUser.getFirst_name(),
+                    updatedUser.getLast_name(), updatedUser.getPassword(), (Timestamp) updatedUser.getAccount_updated());
+            return (getUserById(authentication));
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+
+
     }
-    
-    
+
     @GetMapping("/v1/user/self/pic")
     public ResponseEntity<String> getUserPic(Authentication authentication) throws JSONException {
 
@@ -217,18 +220,24 @@ public class controller {
 
 
 
-                        String response = userPicService.uploadPicture(file, user.get().getUsername(),user.get());
+                        ProfilePic profilePic = userPicService.uploadPicture(file, user.get().getUsername(),user.get());
 
 
                         //fileUploadService.save(file,user.get());
                         message = "Uploaded the file successfully: " + file.getOriginalFilename();
-                        return ResponseEntity.status(HttpStatus.OK).body(message);
+                        String jsonString = new JSONObject().put("file_name",profilePic.getFile_name())
+                                .put("id",profilePic.getId() )
+                                .put("url", profilePic.getUrl())
+                                .put("upload_date",profilePic.getUpload_date())
+                                .put("user_id",profilePic.getUser().getId()).toString();
+
+                        return ResponseEntity.status(HttpStatus.OK).body(jsonString);
                     }
              //   }
                 return ResponseEntity.status(HttpStatus.OK).body(message);
             } catch (Exception e) {
                 message = "Could not upload the file: " + file.getOriginalFilename() + "!";
-                return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(message);
+                return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
             }
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
@@ -268,7 +277,8 @@ public class controller {
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("");
     }
-
 }
+
+
 
 
