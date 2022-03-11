@@ -4,8 +4,11 @@ package com.app.cloudwebapp.Service;
 
 
 
+
+
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.app.cloudwebapp.Model.ProfilePic;
 import com.app.cloudwebapp.Model.User;
@@ -14,12 +17,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.xml.crypto.Data;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -57,10 +62,17 @@ public class UserPicService {
 
     private File convertMultiPartToFile(MultipartFile file) throws IOException {
         //logger.info("Converting multipart file to File");
+       // File convertedFile = new File(file.getOriginalFilename());
+//        System.out.println("COnvertedfile" + convertedFile);
+//        FileInputStream fos = new FileInputStream(convertedFile);
+//        fos.read(file.getBytes());
+//        fos.close();
         File convertedFile = new File(file.getOriginalFilename());
+        convertedFile.createNewFile();
         FileOutputStream fos = new FileOutputStream(convertedFile);
         fos.write(file.getBytes());
         fos.close();
+        System.out.println("after COnvertedfile" + convertedFile);
        // logger.info("Returning File");
         return convertedFile;
     }
@@ -82,16 +94,21 @@ public class UserPicService {
         return false;
     }
 
-    public String uploadPicture(MultipartFile picture, String username,User user) {
+    @Async
+    public ProfilePic uploadPicture(MultipartFile picture, String username,User user) throws IOException {
 
+        System.out.println("File picture get name"  );
+        System.out.println("File picture" +picture.getOriginalFilename()  );
+        //File newfile = new File(picture);
         File fileObject = null;
-        try {
-            fileObject = convertMultiPartToFile(picture);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            fileObject = convertMultiPartToFile(picture);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
-        String content_type = picture.getContentType();
+        System.out.println("File" );
+       // String content_type = picture.getContentType();
        // UserDetails u = userService.loadUserByUsername(username);
         String filename = "";
 //        if(content_type.equals("image/png")){
@@ -106,22 +123,32 @@ public class UserPicService {
 
         String foldername = user.getId().toString();
 
+        System.out.println("foldername" + foldername );
         String file_url = s3BucketName+"/"+foldername+"/"+filename;
         ProfilePic p = new ProfilePic(
                 UUID.randomUUID(),user,filename,file_url, new Timestamp(System.currentTimeMillis()));
 
         if(checkIfPictureExists(user.getId())){
 
-
+            System.out.println("check if pic exist"  );
             ProfilePic p2 = getPictureByUserId(user.getId());
             s3Client.deleteObject(new DeleteObjectRequest(s3BucketName, p2.getUser().getId().toString()+"/"+p2.getFile_name()));
             deletePicture(user);
 
         }
-        s3Client.putObject(new PutObjectRequest(s3BucketName,  foldername+"/"+filename,fileObject));
-        fileObject.delete();
+        System.out.println("File Object "+ fileObject  );
+        System.out.println("before put objjct "  );
+        ObjectMetadata data = new ObjectMetadata();
+        data.setContentType(picture.getContentType());
+        data.setContentLength(picture.getSize());
+        System.out.println("after contect tye and bofre s3 clinet  put objjct "  );
+       s3Client.putObject(s3BucketName, foldername+"/"+picture.getOriginalFilename(), picture.getInputStream(), data);
+
+      //  s3Client.putObject(new PutObjectRequest(s3BucketName,  foldername+"/"+filename,fileObject));
+        System.out.println("after put objjct "  );
+       // fileObject.delete();
         pictureRepository.save(p);
-        return filename+" uploaded successfully.";
+        return p;
     }
 
 
