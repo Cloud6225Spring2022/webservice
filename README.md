@@ -20,6 +20,8 @@ Cloudformation
 RDS
 VPC
 S3
+Autoscaling
+ALB
 
 Build and Deploy instructions for the web application
 
