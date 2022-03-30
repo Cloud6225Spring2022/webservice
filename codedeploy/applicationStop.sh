@@ -1,5 +1,5 @@
 #!/bin/bash
 
-sudo kill -9 $(pgrep java)
-sleep 10
-# mkdir /home/ubuntu/applicationStop
+#stoping tomcat
+sudo systemctl stop appliaction.service
+#sudo systemctl stop amazon-cloudwatch-agent.service
