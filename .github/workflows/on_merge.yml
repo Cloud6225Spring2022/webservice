@@ -4,9 +4,9 @@ name: CD
 
 env: 
     ARTIFACT_NAME : csye6225-webapp-${{ github.sha }}.zip
-    CODEDEPLOY_APPLICATION_NAME : mywebapp
-    CODEDEPLOY_APPLICATION_DEPLOYMENT_GROUP_NAME : mywebapp
-    AWS_REGION : us-east-1
+    CODEDEPLOY_APPLICATION_NAME : csye6225-webapp
+    CODEDEPLOY_APPLICATION_DEPLOYMENT_GROUP_NAME : csye6225-webapp-deployment
+    REGION_AWS : us-east-1
 
 # Controls when the workflow will run
 on:
@@ -79,7 +79,7 @@ jobs:
         with:
            aws-access-key-id:  ${{secrets.AWS_ACCESS_KEY_ID}}
            aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY_ID }}
-           aws-region: ${{env.AWS_REGION}}
+           aws-region: ${{env.REGION_AWS}}
 
 
       - name: Copy S3 bucket to S3
@@ -95,7 +95,7 @@ jobs:
              --application-name ${{env.CODEDEPLOY_APPLICATION_NAME}} \
              --deployment-group-name ${{env.CODEDEPLOY_APPLICATION_DEPLOYMENT_GROUP_NAME}} \ 
              --s3-location bucket=codedeploy.khismatrao.me,bundleType=zip,key=${{ env.ARTIFACT_NAME }} \
-             --region ${{env.AWS_REGION}}
+             --region ${{env.REGION_AWS}}
 
       - name: Packer build
         uses: riznob/packer-build-action@v1.5
