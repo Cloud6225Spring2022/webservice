@@ -95,7 +95,7 @@ jobs:
              --application-name ${{env.CODEDEPLOY_APPLICATION_NAME}} \
              --deployment-group-name ${{env.CODEDEPLOY_APPLICATION_DEPLOYMENT_GROUP_NAME}} \ 
              --s3-location bucket=codedeploy.khismatrao.me,bundleType=zip,key=${{ env.ARTIFACT_NAME }} \
-             --region ${{env.REGION_AWS}}
+             --region us-east-1
 
       - name: Packer build
         uses: riznob/packer-build-action@v1.5
