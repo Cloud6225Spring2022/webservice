@@ -2,6 +2,12 @@
 
 name: CD
 
+env: 
+    ARTIFACT_NAME : csye6225-webapp-${{ github.sha }}.zip
+    CODEDEPLOY_APPLICATION_NAME : mywebapp
+    CODEDEPLOY_APPLICATION_DEPLOYMENT_GROUP_NAME : mywebapp
+    AWS_REGION : us-east-1
+
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
@@ -54,6 +60,34 @@ jobs:
       - name: set path
         run: |
           ls -R
+          
+      - name: Zip Artifact 
+        run: |
+          ls -al
+          mkdir codedeploy_artifact
+          cp codedeploy/*.sh codedeploy_artifact
+          cp appspec.yml codedeploy_artifact
+          cp target/*.jar codedeploy_artifact
+          cd codedeploy_artifact
+          zip -r ${{env.ARTIFACT_NAME}} *
+          pwd
+          ls -al
+          pwd
+    
+      - name: Configure AWS credentials
+        uses: aws-action/configure-aws-credentials@v1
+        with:
+           aws-access-key-id:  ${{secrets.AWS_ACCESS_KEY}}
+           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+           aws-region: ${{env.AWS_REGION}}
+
+
+      - name: Copy S3 bucket to S3
+        run: |
+          pwd
+          ls -R
+          cd codedeploy_artifact
+          aws s3 sync . s3://codedeploy.sandeepwagh.me
 
       - name: Packer build
         uses: riznob/packer-build-action@v1.5
