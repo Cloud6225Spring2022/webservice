@@ -87,7 +87,7 @@ jobs:
           pwd
           ls -R
           cd codedeploy_artifact
-          aws s3 sync . s3://codedeploy.sandeepwagh.me
+          aws s3 sync . s3://codedeploy.khismatrao.me
 
       - name: Packer build
         uses: riznob/packer-build-action@v1.5
