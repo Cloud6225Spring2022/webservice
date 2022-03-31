@@ -4,6 +4,8 @@ os: linux
 files:
   - source: ./
     destination: /home/ec2-user
+    overwrite: true
+file_exists_behavior: OVERWRITE
 
 hooks:
   ApplicationStop:
