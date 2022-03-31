@@ -67,7 +67,7 @@ public class controller {
     }
 
 
-    @GetMapping("/health")
+    @GetMapping("/healthz")
     public ResponseEntity<String> getUsers() {
         return ResponseEntity.status(HttpStatus.OK).body("");
 
