@@ -18,34 +18,35 @@ import org.springframework.context.annotation.Primary;
 public class AWSConfig {
 
     //public static final String BucketName = "your-bucket-name";
-    @Value("${amazonProperties.accesskey}")
-    private String awsAccessKey;
+//     @Value("${amazonProperties.accesskey}")
+//     private String awsAccessKey;
 
-    @Value("${amazonProperties.secretkey}")
-    private String awsSecretKey;
+//     @Value("${amazonProperties.secretkey}")
+//     private String awsSecretKey;
 
-    //@Value("${amazonProperties.region}")
-    private String awsRegion = "us-east-1";
+    @Value("${amazonProperties.region}")
+    private String awsRegion = System.getenv("AWS_REGION");
 
-//    @Bean
-//    @Primary
-//    AmazonS3 generateS3Client(){
-//        return AmazonS3ClientBuilder
-//                .standard()
-//                .withRegion(awsRegion)
-//                .build();
+   @Bean
+   @Primary
+   AmazonS3 generateS3Client(){
+       return AmazonS3ClientBuilder
+               .standard()
+               .withRegion(awsRegion)
+               .withCredentials(new AWSStaticCredentialsProvider(false))
+               .build();
 //    }
 
-    @Primary
-    @Bean
-    AmazonS3 generateS3Client() {
-        AWSCredentials awsCredentials =
-                new BasicAWSCredentials(awsAccessKey, awsSecretKey);
-        return AmazonS3ClientBuilder
-                .standard()
-                .withRegion(awsRegion)
-                .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
-                .build();
+//     @Primary
+//     @Bean
+//     AmazonS3 generateS3Client() {
+//         AWSCredentials awsCredentials =
+//                 new BasicAWSCredentials(awsAccessKey, awsSecretKey);
+//         return AmazonS3ClientBuilder
+//                 .standard()
+//                 .withRegion(awsRegion)
+//                 .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
+//                 .build();
 
     }
 }
