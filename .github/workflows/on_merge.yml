@@ -89,26 +89,26 @@ jobs:
           cd codedeploy_artifact
           aws s3 sync . s3://codedeploy.khismatrao.me
           
-      - name: Make CodeDeploy API call
-        run: |
-            aws deploy create-deployment \
-             --application-name ${{env.CODEDEPLOY_APPLICATION_NAME}} \
-             --deployment-group-name ${{env.CODEDEPLOY_APPLICATION_DEPLOYMENT_GROUP_NAME}} \
-             --s3-location bucket=codedeploy.khismatrao.me,bundleType=zip,key=${{ env.ARTIFACT_NAME }} \
-             --region ${{env.AWS_REGION}}
+      # - name: Make CodeDeploy API call
+      #   run: |
+      #       aws deploy create-deployment \
+      #        --application-name ${{env.CODEDEPLOY_APPLICATION_NAME}} \
+      #        --deployment-group-name ${{env.CODEDEPLOY_APPLICATION_DEPLOYMENT_GROUP_NAME}} \
+      #        --s3-location bucket=codedeploy.khismatrao.me,bundleType=zip,key=${{ env.ARTIFACT_NAME }} \
+      #        --region ${{env.AWS_REGION}}
 
-#       - name: Packer build
-#         uses: riznob/packer-build-action@v1.5
-#         with:
-#           templateFile: 'demoami.json'
-#           workingDir: '.'
-#           varFile: 'packer-vars.json'
-#         env:
-#           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-#           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
-#           AWS_REGION: ${{ secrets.AWS_REGION }}
-#           SUBNET_ID: ${{ secrets.SUBNET_ID }}
-#           DEMO_ACCOUNT_ID: ${{ secrets.DEMO_ACCOUNT_ID }}
-#           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
-#           SOURCE_AMI: ${{ secrets.SOURCE_AMI }}
-#           AWS_INSTANCE_TYPE: ${{secrets.AWS_INSTANCE_TYPE}}
+      - name: Packer build
+        uses: riznob/packer-build-action@v1.5
+        with:
+          templateFile: 'demoami.json'
+          workingDir: '.'
+          varFile: 'packer-vars.json'
+        env:
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          SUBNET_ID: ${{ secrets.SUBNET_ID }}
+          DEMO_ACCOUNT_ID: ${{ secrets.DEMO_ACCOUNT_ID }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SOURCE_AMI: ${{ secrets.SOURCE_AMI }}
+          AWS_INSTANCE_TYPE: ${{secrets.AWS_INSTANCE_TYPE}}
