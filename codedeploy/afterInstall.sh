@@ -2,6 +2,7 @@
 
 #sudo systemctl stop tomcat.service
 sudo systemctl stop application.service
+sudo systemctl stop amazon-cloudwatch-agent.service
 #sudo systemctl stop amazon-cloudwatch-agent.service
 
 #removing previous build ROOT folder
