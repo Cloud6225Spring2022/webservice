@@ -65,7 +65,12 @@
         "destination":"/home/ec2-user/",
         "source":"webapp.sh",
         "type":"file"
-      },
+        },
+        {
+        "destination":"/home/ec2-user/",
+        "source":"amazon-cloudwatch-config.json",
+        "type":"file"
+        },
 		{
 			"type": "shell",
             "inline": [
@@ -79,6 +84,7 @@
             "type":"shell",
             "inline": [
                 "echo -------------------------------------------------Installing Code Deploy Agent----------------------------------------------------",
+                "sudo chmod +x amazon-cloudwatch-config.json",
                 "sudo yum install ruby -y",
                 "cd /home/ec2-user",
                 "sudo wget https://aws-codedeploy-us-east-1.s3.us-east-1.amazonaws.com/latest/install",
@@ -87,7 +93,9 @@
                 "echo -------------------------------------------------Starting Code Deploy Agent----------------------------------------------------",
                 "sudo service codedeploy-agent status",
                 "sudo service codedeploy-agent start",
-                "sudo service codedeploy-agent status"
+                "sudo service codedeploy-agent status",
+                "sudo yum install amazon-cloudwatch-agent -y",
+                "sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/home/ec2-user/amazon-cloudwatch-config.json"
             ]
         }
     ]
