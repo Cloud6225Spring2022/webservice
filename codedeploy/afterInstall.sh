@@ -5,9 +5,9 @@ sudo systemctl stop application.service
 # sudo systemctl stop amazon-cloudwatch-agent.service
 #sudo systemctl stop amazon-cloudwatch-agent.service
 
-sudo mv /home/ec2-user/cloudwatch-config.json /opt/
+sudo mv /home/ec2-user/amazon-cloudwatch-config.json /opt/
 
-sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/cloudwatch-config.json -s
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/amazon-cloudwatch-config.json -s
 
 #removing previous build ROOT folder
 #sudo rm -rf /opt/tomcat/webapps/ROOT
