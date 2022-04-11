@@ -78,8 +78,9 @@ public class controller {
 
     @GetMapping("/health")
     public ResponseEntity<String> getUsers() {
-        return ResponseEntity.status(HttpStatus.OK).body("");
         logger.info("Successful Health check");
+        return ResponseEntity.status(HttpStatus.OK).body("");
+        
 
     }
 
