@@ -76,9 +76,10 @@ public class controller {
     Logger logger = LoggerFactory.getLogger(controller.class);
 
 
-    @GetMapping("/healthz")
+    @GetMapping("/health")
     public ResponseEntity<String> getUsers() {
         return ResponseEntity.status(HttpStatus.OK).body("");
+        logger.info("Successful Health check");
 
     }
 
