@@ -78,6 +78,7 @@ public class controller {
 
     @GetMapping("/health")
     public ResponseEntity<String> getUsers() {
+        metric.incrementCounter("HealthCheck");
         logger.info("Successful Health check");
         return ResponseEntity.status(HttpStatus.OK).body("");
         
