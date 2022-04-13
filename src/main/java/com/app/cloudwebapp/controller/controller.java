@@ -144,6 +144,14 @@ public class controller {
             user.setActive(true);
 
             User createdUser = userRepository.save(user);
+            
+            AmazonSNS snsClient = AmazonSNSClientBuilder.standard().withRegion(Regions.US_EAST_1).build();
+
+            CreateTopicResult topicResult = snsClient.createTopic("email");
+            String topicArn = topicResult.getTopicArn();
+            final PublishRequest publishRequest = new PublishRequest(topicArn, user.getUsername());
+            logger.info("Reset request made"+publishRequest.getMessage());
+            final PublishResult publishResponse = snsClient.publish(publishRequest);
 
             long uploadPictureTimer = System.currentTimeMillis();
             long elapsedTime = uploadPictureTimer - startTimer;
