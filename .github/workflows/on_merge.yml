@@ -87,14 +87,14 @@ jobs:
           pwd
           ls -R
           cd codedeploy_artifact
-          aws s3 sync . s3://codedeploy.demo.khismatrao.me
+          aws s3 sync . s3://codedeploy.prod.khismatrao.me
           
       - name: Make CodeDeploy API call
         run: |
             aws deploy create-deployment \
              --application-name ${{env.CODEDEPLOY_APPLICATION_NAME}} \
              --deployment-group-name ${{env.CODEDEPLOY_APPLICATION_DEPLOYMENT_GROUP_NAME}} \
-             --s3-location bucket=codedeploy.demo.khismatrao.me,bundleType=zip,key=${{ env.ARTIFACT_NAME }} \
+             --s3-location bucket=codedeploy.prod.khismatrao.me,bundleType=zip,key=${{ env.ARTIFACT_NAME }} \
              --region ${{env.AWS_REGION}}
 
 #       - name: Packer build
