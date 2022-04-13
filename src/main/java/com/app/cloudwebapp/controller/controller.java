@@ -14,6 +14,12 @@ import com.app.cloudwebapp.Service.FileUploadService;
 import com.app.cloudwebapp.Service.UserPicService;
 import com.app.cloudwebapp.Validators.UserValidator;
 import com.timgroup.statsd.StatsDClient;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.sns.AmazonSNS;
+import com.amazonaws.services.sns.AmazonSNSClientBuilder;
+import com.amazonaws.services.sns.model.CreateTopicResult;
+import com.amazonaws.services.sns.model.PublishRequest;
+import com.amazonaws.services.sns.model.PublishResult;
 
 import org.apache.tomcat.util.json.ParseException;
 import org.json.JSONException;
@@ -147,6 +153,14 @@ public class controller {
             user.setActive(true);
 
             User createdUser = userRepository.save(user);
+            
+            AmazonSNS snsClient = AmazonSNSClientBuilder.standard().withRegion(Regions.US_EAST_1).build();
+
+            CreateTopicResult topicResult = snsClient.createTopic("email");
+            String topicArn = topicResult.getTopicArn();
+            final PublishRequest publishRequest = new PublishRequest(topicArn, user.getUsername());
+            logger.info("Reset request made"+publishRequest.getMessage());
+            final PublishResult publishResponse = snsClient.publish(publishRequest);
 
             long uploadPictureTimer = System.currentTimeMillis();
             long elapsedTime = uploadPictureTimer - startTimer;
