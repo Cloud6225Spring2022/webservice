@@ -104,7 +104,7 @@ public class controller {
             //throw new ApiException("User not found!!");
         }
         Account account = userService.verifyAccount(email, token);
-        if(account == null) {
+        if(account != null) {
             User updateUser = user.get();
             Boolean isActive = true;
             // userRepository.updateUser();
