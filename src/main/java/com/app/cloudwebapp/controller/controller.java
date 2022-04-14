@@ -50,6 +50,7 @@ import java.util.regex.Pattern;
 @CrossOrigin("*")
 public class controller {
 
+
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
@@ -127,7 +128,6 @@ public class controller {
 
 		metric.incrementCounter("GetUserInfo");
 		logger.info("Inside get User Function");
-
 		metric.incrementCounter("apiCall");
 
 		if (authentication == null || authentication.getName() == null && authentication.getName().isEmpty()) {
