@@ -54,11 +54,19 @@ public class UserService implements UserDetailsService {
            // logger.info("verifying account info");
             account = dynamoDBMapper.load(Account.class, email,token);
 
-            if(account.getToken().equals(token)) {
-                logger.info("Email: "+email+" is verified!!");
-            }else {
-                logger.info("Invalid token");
-            }
+            if(account != null) {
+    if (account.getToken().equals(token)) {
+        logger.info("Email: " + email + " is verified!!");
+        return account;
+    } else {
+        logger.info("Invalid token");
+        return null;
+    }
+}
+else
+{
+    return null;
+}
         } catch (AmazonServiceException e) {
             logger.info("Amazon DynamoDB Service error !! \nStackTrace: \n" + e.getMessage());
             throw new ResponseStatusException(HttpStatus.valueOf(e.getStatusCode()), "Amazon DynamoDB Service error !! \nStackTrace: \n" + e.getMessage(), e);
@@ -66,7 +74,7 @@ public class UserService implements UserDetailsService {
             logger.info("INTERNAL_ERROR while connecting Amazon DynamoDB !! \nStackTrace: \n"+ e.getMessage());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR while connecting Amazon DynamoDB !! \nStackTrace: \n"+ e.getMessage(), e);
         }
-        return account;
+        //return account;
     }
 
 
