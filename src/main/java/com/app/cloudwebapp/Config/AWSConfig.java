@@ -50,4 +50,13 @@ public class AWSConfig {
 //                 .build();
 
     }
+    
+     @Bean
+    public DynamoDBMapper dynamoDBMapper() {
+        AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()
+                .withCredentials(new InstanceProfileCredentialsProvider(false))
+                .withRegion(awsRegion)
+                .build();
+        return new DynamoDBMapper(client, DynamoDBMapperConfig.DEFAULT);
+    }
 }
