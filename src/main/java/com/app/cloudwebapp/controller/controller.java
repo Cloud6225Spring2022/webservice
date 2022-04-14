@@ -6,12 +6,14 @@ package com.app.cloudwebapp.controller;
 
 import com.amazonaws.util.IOUtils;
 import com.app.cloudwebapp.Model.ProfilePic;
+import com.app.cloudwebapp.Model.Account;
 import com.app.cloudwebapp.Model.User;
 import com.app.cloudwebapp.Repository.UserPicRepository;
 import com.app.cloudwebapp.Repository.UserRepository;
 import com.app.cloudwebapp.Config.FileUploadProperties;
 import com.app.cloudwebapp.Service.FileUploadService;
 import com.app.cloudwebapp.Service.UserPicService;
+import com.app.cloudwebapp.Service.UserService;
 import com.app.cloudwebapp.Validators.UserValidator;
 import com.timgroup.statsd.StatsDClient;
 import com.amazonaws.regions.Regions;
@@ -73,6 +75,9 @@ public class controller {
     
     @Autowired
     private StatsDClient metric;
+    
+    @Autowired
+    UserService userService;
 
     @InitBinder
     private void initBinder(WebDataBinder binder) {
@@ -87,10 +92,40 @@ public class controller {
         return ResponseEntity.status(HttpStatus.OK).body("");
 
     }
+    
+    @GetMapping(value = "/v1/verifyUserEmail")
+    public ResponseEntity accountVerification(@RequestParam(name="email") String email, @RequestParam(name = "token") String token) {
+        metric.incrementCounter("Verify New User API");
+
+        logger.info("Verify New User API called.");
+        Optional<User> user = userRepository.findByUsername(email);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            //throw new ApiException("User not found!!");
+        }
+        Account account = userService.verifyAccount(email, token);
+        if(account == null) {
+            User updateUser = user.get();
+            Boolean isActive = true;
+            // userRepository.updateUser();
+            userRepository.updateUser(updateUser.getUsername(), updateUser.getFirst_name(),
+                    updateUser.getLast_name(), updateUser.getPassword(), (Timestamp) updateUser.getAccount_updated(),
+                    isActive);
+            logger.info("update user completed");
+            return new ResponseEntity<String>("Your account is verified!!", HttpStatus.OK);
+        }
+        else
+        {
+            logger.info("Account is null or token expired");
+            return new ResponseEntity<String>("Your account is not verified!!, check token is expired or not", HttpStatus.OK);
+
+        }
+    }
+
 
 
     @GetMapping("/v1/user/self")
-    public ResponseEntity<User> getUserById(Authentication authentication) {
+    public ResponseEntity getUserById(Authentication authentication) {
     	
     	metric.incrementCounter("GetUserInfo");
         logger.info("Inside get User Function");
@@ -104,8 +139,17 @@ public class controller {
         logger.info("Validating Authenticatio Header");
 
         Optional<User> user = userRepository.findByUsername(authentication.getName());
-        logger.info("User Found and return data");
-        return ResponseEntity.status(HttpStatus.OK).body(user.get());
+        if(user.get().getActive())
+        {
+            logger.info("User Found and return data");
+            return ResponseEntity.status(HttpStatus.OK).body(user.get());
+        }
+        else {
+            logger.info("User not Active ");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not verified");
+        }
+        //logger.info("User Found and return data");
+        //return ResponseEntity.status(HttpStatus.OK).body(user.get());
     }
 
     @PostMapping("/v1/user")
@@ -172,7 +216,7 @@ public class controller {
 
     // @PreAuthorize(value = "isAuthenticated()")
     @PutMapping("/v1/user/self")
-    public ResponseEntity<User> UpdateUser(Authentication authentication, @Valid @RequestBody User updatedUser) {
+    public ResponseEntity UpdateUser(Authentication authentication, @Valid @RequestBody User updatedUser) {
 
     	metric.incrementCounter("UpdateUser");
 
@@ -191,6 +235,8 @@ public class controller {
 
         if (user != null) {
 
+            if(user.get().getActive()) {
+
 
             User user2 = null;
 
@@ -204,15 +250,16 @@ public class controller {
 
 
             userRepository.updateUser(authentication.getName(), updatedUser.getFirst_name(),
-                    updatedUser.getLast_name(), updatedUser.getPassword(), (Timestamp) updatedUser.getAccount_updated());
+                    updatedUser.getLast_name(), updatedUser.getPassword(), (Timestamp) updatedUser.getAccount_updated(),updatedUser.getActive());
             logger.info("update user completed");
             return (getUserById(authentication));
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        } else
+        {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not verified");
         }
-
-
-    }
+    } else
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+}
 
     @GetMapping("/v1/user/self/pic")
     public ResponseEntity<String> getUserPic(Authentication authentication) throws JSONException {
@@ -229,6 +276,8 @@ public class controller {
         Optional<User> user = userRepository.findByUsername(authentication.getName());
 
         if (user != null) {
+        	
+        	if(user.get().getActive()) {
 
             Optional<ProfilePic> profilePic = userPicRepository.findByUser(user.get());
             if(!profilePic.isPresent())
@@ -243,10 +292,14 @@ public class controller {
             
             logger.info("User  found");
             return ResponseEntity.status(HttpStatus.OK).body(jsonString);
+        }else {
+            logger.info("User  found");
+            return ResponseEntity.status(HttpStatus.OK).body("User not verified");
         }
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
+
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+}
 
 
     @PostMapping("/v1/user/self/pic")
@@ -265,6 +318,8 @@ public class controller {
         Optional<User> user = userRepository.findByUsername(authentication.getName());
 
         if (user != null) {
+        	
+        	 if(user.get().getActive()) {
 
             String message = "";
             try {
@@ -305,10 +360,14 @@ public class controller {
             	return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
             }
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not verified");
         }
 
+    } else {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
     }
+
+}
 
     @DeleteMapping("/v1/user/self/pic")
     public ResponseEntity<String> deleteUserPic(Authentication authentication) throws ParseException {
@@ -322,6 +381,8 @@ public class controller {
         Optional<User> user = userRepository.findByUsername(authentication.getName());
 
         if (user != null) {
+        	
+        	if (user.get().getActive()) {
 
             String message = "";
             try {
@@ -344,9 +405,17 @@ public class controller {
 
 
 
+        	else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not verified");
+            }
+        }
+
+
+
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("");
     }
 }
+
 
 
 

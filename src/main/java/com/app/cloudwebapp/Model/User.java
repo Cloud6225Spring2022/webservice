@@ -79,10 +79,23 @@ import java.util.UUID;
 
     @Column
     private Timestamp account_updated;
+    
+    private Boolean isActive = false;
+    
+    
 
 
 
-        @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+        public Boolean getActive() {
+		return isActive;
+	}
+
+	public void setActive(Boolean isActive) {
+		this.isActive = isActive;
+	}
+
+
+		@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
         private boolean active = true;
 
         public boolean isActive() {
