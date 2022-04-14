@@ -14,6 +14,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
 
 @Configuration
 public class AWSConfig {
@@ -49,5 +53,14 @@ public class AWSConfig {
 //                 .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
 //                 .build();
 
+    }
+    
+     @Bean
+    public DynamoDBMapper dynamoDBMapper() {
+        AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()
+                .withCredentials(new InstanceProfileCredentialsProvider(false))
+                .withRegion(awsRegion)
+                .build();
+        return new DynamoDBMapper(client, DynamoDBMapperConfig.DEFAULT);
     }
 }
