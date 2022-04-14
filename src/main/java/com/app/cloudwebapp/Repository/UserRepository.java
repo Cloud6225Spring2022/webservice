@@ -25,9 +25,9 @@ public  interface  UserRepository extends JpaRepository<User, UUID> {
 
     @Transactional
     @Modifying(clearAutomatically = true)
-    @Query("UPDATE User SET first_name= :fName, last_name= :lName, password=:password, account_updated=:accountUpdated WHERE username in :email")
+    @Query("UPDATE User SET first_name= :fName, last_name= :lName, password=:password, account_updated=:accountUpdated,isActive=:isActive WHERE username in :email")
     public int updateUser(@Param(value = "email") String email, @Param("fName") String fName, @Param("lName") String LName,
-                          @Param("password") String password, @Param("accountUpdated") Timestamp accountUpdated);
+                          @Param("password") String password, @Param("accountUpdated") Timestamp accountUpdated,@Param("isActive") Boolean isActive);
 
 
 
